@@ -1,0 +1,6 @@
+class Kata {
+	  public static String numberToString(int num) {
+	    String s = Integer.toString(num);
+	    return s; // Return a string of the number here!
+	  }
+	}
