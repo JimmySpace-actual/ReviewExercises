@@ -1,0 +1,44 @@
+import java.util.*;
+
+
+public class FindOdd {
+    public static int findIt(int[] a) {
+      //Turn input array into HashSet to find how many unique elements there are
+      Set<Integer> uniqueCount = new HashSet<>();
+      
+      
+      //Turn that HashSet into an actual usable int array
+      for (int idc : a){
+        uniqueCount.add(idc);
+      }
+      //side note learned the above syntax for a for loop today, do not fully understand what I'm defining but cool
+      Object[] uniqueCountObject = uniqueCount.toArray();
+      int[] uniqueCountArray = new int[uniqueCountObject.length];
+      for(int l = 0; l < uniqueCountObject.length; l++){
+        uniqueCountArray[l] = (int) uniqueCountObject[l];
+      }
+      
+      //Create an array to count how many times each unique number appears in the input array
+      int[] counterArray = new int[uniqueCountArray.length];
+      
+      //Iterate over input array and uniqueCountArray to count how many times each unique number appears
+      for (int i = 0; i < uniqueCountArray.length; i++){
+        for (int j = 0; j < a.length; j++){
+          if (uniqueCountArray[i] == a[j]){
+            counterArray[i]++;
+          }
+        }
+        
+      }
+      
+      //Iterate over the counter array to find the odd count, then use that index to find the unique number associated with it in the uniqueCountArray
+      int foundYou = -1;
+      for (int k = 0; k < uniqueCountArray.length; k++){
+        if(counterArray[k] % 2 == 1){
+          foundYou = k;
+          break;
+        }
+      }
+        return uniqueCountArray[foundYou];
+    }
+}
