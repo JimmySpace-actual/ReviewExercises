@@ -1,0 +1,14 @@
+import java.util.*;
+
+public class Kata {
+
+  public static String solution(String str) {
+    char[] charArray = str.toCharArray();
+    String reverse = "";
+    for(int i = charArray.length - 1; i >= 0; i--){
+      reverse += Character.toString(charArray[i]);
+    }
+    return reverse;
+  }
+
+}
