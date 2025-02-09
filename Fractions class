@@ -1,0 +1,235 @@
+import java.util.*;
+import java.lang.Math;
+import java.io.*;
+
+public class Fraction implements Comparable<Fraction>
+{
+    private final long top;
+    private final long bottom;
+
+    public Fraction(long numerator, long denominator) {
+        top = numerator;
+        bottom = denominator;
+    }
+
+    @Override
+    public int hashCode() { return 17 * Long.hashCode(top) + Long.hashCode(bottom); }    
+    @Override
+    public boolean equals(Object o) { return compareTo((Fraction)o) == 0; }    
+    @Override
+    public int compareTo(Fraction f2){ return Long.compare(top * f2.bottom, f2.top * bottom); }
+    
+    // Your work here!
+    
+    public long getNumerator(){
+    long result;
+    
+    result = top;
+    
+    return result;
+    }
+    
+    public long getDenomenator(){
+    long result;
+    
+    result = bottom;
+    
+    return result;
+    }
+    
+    //Add two fractions
+    public Fraction add(Fraction f2) {
+    
+    //Grab individual numerators and denomenators from each of the fractions
+    long f1num = this.getNumerator();
+    long f1denom = this.getDenomenator();
+    long f2num = f2.getNumerator();
+    long f2denom = f2.getDenomenator();
+    
+    //Find a common multiple of the two fractions. Does not matter if it's the LCM or not
+    long CM = f1denom * f2denom;
+    
+    //Convert the numerators to being a part of the CM fraction
+    long f1numCM = f1num * f2denom;
+    long f2numCM = f2num * f1denom;
+    
+    //Numerator addition
+    long addNum = f1numCM + f2numCM;
+    
+    //now we prime factorize addNum and CM to find the reduced fraction
+    //I think I'm best off making a new class for this but I think that's gonna be outside the scope of this thing so I guess
+    //I'll just code it in here?
+    //Oh god I just realized I only know one way to do this to make sure my outputs are longs than I can actually compare, this
+    //is going to look hideous I'm so sorry and look forward to hearing how I could have done this better. There has to be a
+    //better way right?
+    
+    
+    //The prime factorization section of code is heavily inspired by a GeeksforGeeks module I found, modified to output the data
+    //type I actually want and only used after spending a half hour proving to myself that the upper bound of the for loop is
+    //correct every time. It actually has to do with the structure of the non-prime factorization and the fact that if there's 
+    //a square factor, that has to be the "middle", and all factors greater than the square can themselves be factored by 
+    //numbers smaller than the square, which means they aren't prime numbers and can therefore always be ignored
+
+    ArrayList<Long> pfNumArray = new ArrayList<Long>();
+    
+    //Just in case I'm adding 0 with 1 over anything (or also if 1 is my denomenator), add a single prime factor of 1 even
+    //though it's technically not prime, having an empty list would detonate my code, but a size 1 list with the element 1
+    //should still function and give the correct answer
+    if(addNum == 1){
+      pfNumArray.add(1L);
+    }
+    
+    //This finds all factors of 2 of the number, and guarantees transforms our number into an odd number while also making sure
+    //that if I'm adding 0 with 0 I don't spend infinite time adding the number 2 to an arraylist
+    while (addNum % 2 == 0 && addNum > 0){
+    pfNumArray.add(2L);
+    addNum /= 2;
+    }
+    
+    
+    //Since reimann's zeta function both isn't proven true and is also way too complex, now we just check all odd numbers for
+    //being prime factors. Sure some many odd numbers aren't prime but this should never accidentally generate a composite odd
+    //number as a factor because the factors of compsite odds are all smaller prime odds which we check for first.
+    for (long i = 3L; i * i <= addNum; i +=2L){
+      while (addNum % i == 0){
+      pfNumArray.add(i);
+      addNum /=i;
+      }
+    }
+    
+    //In case addNum is a prime number greater than 2
+    if(addNum > 2){
+      pfNumArray.add(addNum);
+    }
+    
+    //Hash set to find the unique prime factors, so we can eventually find how many of each there are
+    Set<Long> uniqueNumPF = new HashSet<>();
+    for (long idc : pfNumArray){
+    uniqueNumPF.add(idc);
+    }
+    
+    //Now starting to set up for counting how many of each prime factor there are, which involves transforming HashSet into
+    //a long array
+    Object[] tempPF = uniqueNumPF.toArray();
+    long[] uniqueNumPFArray = new long[tempPF.length];
+    for (int j = 0; j < tempPF.length; j++){
+    uniqueNumPFArray[j] = (long) tempPF[j];
+    }
+    
+    //Now we create the counter array
+    long[] numCounter = new long[uniqueNumPFArray.length];
+    
+    //Now we count
+    for (int k = 0; k < uniqueNumPFArray.length; k++){
+      for (int l = 0; l < pfNumArray.size(); l++){
+        if (uniqueNumPFArray[k] == pfNumArray.get(l)){
+          numCounter[k]++;
+        }
+      }
+    }
+    
+    //Now we do it all again for the denomenator
+
+    ArrayList<Long> pfDenomArray = new ArrayList<Long>();
+    
+    if(CM == 1){
+      pfDenomArray.add(1L);
+    }
+    
+    while (CM % 2 == 0 && CM > 0){
+    pfDenomArray.add(2L);
+    CM /= 2;
+    }
+    
+    for (long m = 3L; m * m <= CM; m +=2L){
+      while (CM % m == 0){
+      pfDenomArray.add(m);
+      CM /=m;
+      }
+    }
+    
+    if(CM > 2){
+      pfDenomArray.add(CM);
+    }
+    
+    Set<Long> uniqueDenomPF = new HashSet<>();
+    for (long idk : pfDenomArray){
+    uniqueDenomPF.add(idk);
+    }
+    
+    Object[] tempPF2 = uniqueDenomPF.toArray();
+    long[] uniqueDenomPFArray = new long[tempPF2.length];
+    for (int n = 0; n < tempPF2.length; n++){
+    uniqueDenomPFArray[n] = (long) tempPF2[n];
+    }
+    
+    long[] denomCounter = new long[uniqueDenomPFArray.length];
+    
+    for (int o = 0; o < uniqueDenomPFArray.length; o++){
+      for (int p = 0; p < pfDenomArray.size(); p++){
+        if (uniqueDenomPFArray[o] == pfDenomArray.get(p)){
+          denomCounter[o]++;
+        }
+      }
+    }
+    
+    //Okay right now my imporant things are: uniqueNumPFArray, numCounter, uniqueDenomPFArray, and denomCounter
+    
+    //I need to look at the numerator and denomenator arrays, and if a number is the same between the two subtract the smaller
+    //number of occurences from both the numerator and denomenator to create my reduced number. If the number of occurences is
+    //the same then they both end up equalling zero
+    
+    for (long q = 0L; q < uniqueNumPFArray.length; q++){
+      int q1 = (int) q;
+      long target = uniqueNumPFArray[q1];
+      for (long r = 0L; r < uniqueDenomPFArray.length; r++){
+        int r1 = (int) r;
+        if(target == uniqueDenomPFArray[r1]){
+          if(numCounter[q1] - denomCounter[r1] > 0L){
+            numCounter[q1] -=denomCounter[r1];
+            denomCounter[r1] = 0L;
+          } else if (numCounter[q1] - denomCounter[r1] < 0L){
+            denomCounter[r1] -= numCounter[q1];
+            numCounter[q1] = 0L;
+          } else {
+            numCounter[q1] = 0L;
+            denomCounter[r1] = 0L;
+          }
+        }
+      }
+    }
+    
+    //Calculate the resultant numerator
+    long resultantNum = 1L;
+    for (long s = 0L; s < uniqueNumPFArray.length; s++){
+      int s1 = (int) s;
+      resultantNum *= Math.pow(uniqueNumPFArray[s1],numCounter[s1]);
+    }
+    
+    //Calculate resultant denomenator
+    long resultantDenom = 1L;
+    for (long t = 0L; t < uniqueDenomPFArray.length; t++){
+      int t1 = (int) t;
+      resultantDenom *= Math.pow(uniqueDenomPFArray[t1],denomCounter[t1]);
+    }
+    
+    //create my result as a Fraction object and spit it out
+    
+    Fraction result = new Fraction(resultantNum, resultantDenom);
+    return result;
+    }
+    
+    //...and make this class string representable
+    
+    public String toString() {
+      long top = this.getNumerator();
+      long bottom = this.getDenomenator();
+      
+      String result = top + "/" + bottom;
+
+      return result;
+    }
+}
+
+//I looked closely at the other submitted solutions for this one, they were done in so few lines of code comparatively, which I figured would be the case but as I looked at them I saw they condensing things in ways I didn't realize you could/should and creating/using
+//a GCD function that seems to do in 1-2 lines of code what took me like 20 and already had it in a useful data type and also it somehow is also spitting out the most reduced fraction when it looks to me as if it shouldn't? I have so much to learn 
